@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Nosso banco de dados principal (PostgreSQL)
+  postgres:
+    image: postgres:16-alpine
+    container_name: workout_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: workout_password_123
+      POSTGRES_DB: workout_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - workout_pgdata:/var/lib/postgresql/data
+
+  # Nosso sistema de Cache (Redis) que definimos na arquitetura
+  redis:
+    image: redis:7-alpine
+    container_name: workout_cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  # Isso garante que você não perca seus dados se desligar o PC
+  workout_pgdata:
