@@ -97,9 +97,14 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     });
 
     if (!response.ok) {
-        // Se der 401, tenta refresh antes de deslogar
+        // Por que capturamos o erro 401 (Unauthorized) aqui de forma global?
+        // Para centralizar a lógica de Refresh Token (Sliding Session).
+        // Assim, nenhuma requisição do frontend precisa saber como lidar com token expirado.
         if (response.status === 401) {
-            // Evita múltiplos refreshes simultâneos
+            // Por que usamos um semáforo (isRefreshing) e uma Promise (refreshPromise)?
+            // Para resolver a condição de corrida (Race Condition). Se a tela carregar 5 gráficos
+            // simultâneos e o token tiver expirado, todas as 5 requisições dariam 401 ao mesmo tempo.
+            // O semáforo garante que faremos apenas 1 requisição de refresh, e as outras 4 aguardarão.
             if (!isRefreshing) {
                 isRefreshing = true;
                 refreshPromise = tryRefreshToken();
@@ -110,7 +115,8 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
             refreshPromise = null;
 
             if (refreshResult) {
-                // Retry a request original com o novo token
+                // Como o refresh foi bem sucedido, nós aplicamos um "Retry" transparente da requisição original.
+                // O usuário nunca percebe que o token expirou no meio do uso.
                 const retryResponse = await fetch(url, {
                     ...options,
                     headers: {
@@ -125,7 +131,9 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
                 }
             }
 
-            // Refresh falhou → logout
+            // Por que fazemos o logout compulsório se o refresh falhou?
+            // Porque significa que a sessão expirou completamente por inatividade (ou token revogado no backend).
+            // Limpar a store do Zustand (clearAuth) força a árvore de rotas (ProtectedRoutes) a jogar o usuário para a tela de Login.
             useAuthStore.getState().clearAuth();
         }
 

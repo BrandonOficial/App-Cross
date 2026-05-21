@@ -2,7 +2,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// Interface local para a rotina ativa (desacoplada da API)
+// Por que temos interfaces locais aqui separadas do DTO do backend?
+// Para garantir resiliência offline (Offline-First). O Zustand precisa conseguir operar
+// independente da rede, então moldamos os dados para a necessidade imediata da UI.
 export interface ActiveExercise {
     id: string;
     exerciseId?: string;
@@ -42,12 +44,17 @@ interface WorkoutState {
     startTime: number | null;
     currentExerciseIndex: number;
 
-    // Estado das séries por exercício { [exerciseId]: SetEntry[] }
+    // Por que normalizamos o estado das séries em um Record (Dictionary) em vez de aninhar dentro da routine?
+    // Normalização evita re-renders desnecessários. Se as séries fossem aninhadas,
+    // qualquer input faria o objeto `routine` inteiro ser recriado, causando lag no teclado do celular.
     exerciseSets: Record<string, SetEntry[]>;
-    // Linha ativa por exercício { [exerciseId]: number (1-indexed) }
+    
+    // Controla qual linha (set) está ativa para receber input { [exerciseId]: rowNumber }
     activeRowMap: Record<string, number>;
 
-    // Timer de descanso
+    // Armazenamos o timestamp absoluto final do descanso em vez de um "contador regressivo" (timeLeft).
+    // Por que? Porque o JS na web sofre throttle (é pausado) quando o usuário minimiza o navegador no celular.
+    // Usando timestamp absoluto, a conta do tempo restante sempre estará correta quando o app voltar a ficar ativo.
     restTimerEnd: number | null;
 
     // Ações

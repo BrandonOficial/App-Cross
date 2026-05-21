@@ -13,7 +13,9 @@ export function SetsTable({ exerciseId }: SetsTableProps) {
     const initSetsForExercise = useWorkoutStore((s) => s.initSetsForExercise);
     const addSetRow = useWorkoutStore((s) => s.addSetRow);
 
-    // Inicializa as 3 linhas quando o componente monta pela primeira vez
+    // Por que inicializamos 3 linhas vazias (Empty States) no mount do componente?
+    // Para reduzir o atrito (friction) de uso. O usuário médio costuma fazer 3 séries por exercício.
+    // Assim, não o forçamos a clicar "Adicionar Série" repetidas vezes.
     useEffect(() => {
         initSetsForExercise(exerciseId, 3);
     }, [exerciseId, initSetsForExercise]);

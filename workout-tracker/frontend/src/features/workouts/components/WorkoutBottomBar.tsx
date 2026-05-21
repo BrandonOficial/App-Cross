@@ -68,10 +68,12 @@ export function WorkoutBottomBar() {
 
         if (!currentSet || !currentSet.weight || !currentSet.reps) return;
 
-        // Salva localmente (Zustand)
+        // Salvamos localmente primeiro (Optimistic UI). Por quê?
+        // Para garantir que a interface não congele aguardando o banco de dados.
         saveCurrentSet(exerciseId);
 
-        // Tenta persistir na API em background
+        // Persistência "Fire and Forget" em background. 
+        // Academias costumam ter sinal 4G ruim, então não podemos bloquear o fluxo de treino se a requisição oscilar.
         if (sessionId && !sessionId.startsWith('local-')) {
             try {
                 const result = await logWorkoutSet(sessionId, {
@@ -91,7 +93,8 @@ export function WorkoutBottomBar() {
             }
         }
 
-        // Inicia Rest Timer
+        // Inicia o Rest Timer automaticamente após salvar a série.
+        // A lógica de negócio dita que o descanso padrão é 45s para manter a intensidade do treino.
         startRestTimer(45);
     };
 
@@ -137,7 +140,11 @@ export function WorkoutBottomBar() {
 
         finishWorkout();
 
-        // Invalida caches para que Dashboard e History reflitam o novo treino
+        // Por que invalidamos as queries globais aqui?
+        // Porque ao finalizar um treino, os dados locais do frontend como "Volume Semanal", 
+        // "Ofensiva (Streak)" e "Histórico de Treinos" ficam obsoletos em relação ao banco.
+        // O `invalidateQueries` do React Query é uma abordagem arquitetural reativa que força 
+        // a aplicação a buscar dados frescos silenciosamente assim que o usuário navegar para a Home.
         queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
         queryClient.invalidateQueries({ queryKey: ['history-sessions'] });
         queryClient.invalidateQueries({ queryKey: ['latest-session'] });

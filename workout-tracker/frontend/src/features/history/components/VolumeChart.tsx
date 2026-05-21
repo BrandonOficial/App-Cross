@@ -47,7 +47,10 @@ export function VolumeChart({ sessions }: VolumeChartProps) {
         return {
             chartData: data,
             totalVolume: totalVol,
-            percentChange: sessions.length > 2 ? 12 : 0, // Placeholder até termos dados de semana anterior
+            // Optamos por um valor estático (12%) temporariamente porque 
+            // a query de comparação com a semana anterior exige agregações complexas no DB.
+            // Para o MVP, isso nos permite ajustar a interface gráfica antes de otimizar a query.
+            percentChange: sessions.length > 2 ? 12 : 0, 
         };
     }, [sessions]);
 

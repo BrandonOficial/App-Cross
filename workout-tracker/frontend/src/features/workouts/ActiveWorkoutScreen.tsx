@@ -17,7 +17,10 @@ export function ActiveWorkoutScreen() {
     const navigate = useNavigate();
     const [showAddModal, setShowAddModal] = useState(false);
 
-    // Redireciona se acessar a URL sem ter um treino ativo na store
+    // Por que validamos o estado ativo aqui e não no roteador (React Router)?
+    // Porque o roteador cuida da autenticação (rotas públicas vs privadas), mas o conceito de "Treino Ativo"
+    // é estritamente volátil e vive no Zustand. Evitar que o usuário caia num estado "quebrado" ao recarregar a aba 
+    // ou acessar diretamente a URL previne crashes nos componentes filhos que esperam um `routine` não nulo.
     if (!isActive || !routine) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-4">
@@ -34,7 +37,9 @@ export function ActiveWorkoutScreen() {
     const currentExercise = exercises[currentExerciseIndex];
     const exerciseId = currentExercise?.exercise?.id ?? currentExercise?.exerciseId ?? '';
 
-    // Estado vazio — treino livre sem exercícios ainda
+    // Por que existe um Empty State se toda rotina requer exercícios para ser criada?
+    // Porque o App suporta a funcionalidade de "Treino Livre (Free Style)".
+    // O usuário pode decidir no vestiário iniciar um treino em branco e ir adicionando os exercícios sob demanda.
     if (exercises.length === 0) {
         return (
             <div className="flex flex-col pb-32 animate-in relative">

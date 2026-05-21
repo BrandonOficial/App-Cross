@@ -7,6 +7,10 @@ export function WorkoutHeader() {
     const navigate = useNavigate();
 
     const handleFinish = () => {
+        // Utilizamos um `confirm` nativo temporariamente porque a ação de finalizar
+        // é irreversível (limpa o Zustand store). Em um cenário de produção futuro,
+        // substituiremos por um Modal Customizado para manter a consistência estética do PWA,
+        // mas a simplicidade do `confirm` valida a funcionalidade mais rápido.
         if (confirm("Deseja realmente finalizar o treino?")) {
             finishWorkout();
             navigate('/app/dashboard');

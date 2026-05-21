@@ -14,10 +14,15 @@ const EXERCISE_IMAGES: Record<string, string> = {
 
 function getExerciseImage(name: string): string {
     const lowerName = name.toLowerCase();
+    
+    // Por que usamos um iterador manual com 'includes'?
+    // Porque o nome dos exercícios vem do banco e pode variar na escrita (ex: "Supino Inclinado", "Supino Reto").
+    // O 'includes' garante o match pelo radical da palavra, evitando a necessidade de um relacionamento 
+    // complexo 1-1 entre o banco e as imagens neste momento do projeto.
     for (const [key, img] of Object.entries(EXERCISE_IMAGES)) {
         if (lowerName.includes(key)) return img;
     }
-    return '/exercise-bench.png'; // fallback
+    return '/exercise-bench.png'; // fallback seguro para manter o grid preenchido
 }
 
 interface ExerciseCardProps {
