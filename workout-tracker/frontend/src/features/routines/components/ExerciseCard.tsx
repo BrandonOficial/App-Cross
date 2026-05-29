@@ -1,6 +1,4 @@
 import { ChevronRight } from 'lucide-react';
-import type { Exercise } from '@/lib/api';
-
 // Mapeia imagens para exercícios conhecidos
 const EXERCISE_IMAGES: Record<string, string> = {
     'supino': '/exercise-bench.png',

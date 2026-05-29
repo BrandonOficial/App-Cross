@@ -9,9 +9,6 @@ import { useState } from 'react';
 import { EditRoutineModal } from './EditRoutineModal';
 
 export function UserRoutinesSection() {
-    const navigate = useNavigate();
-    const startWorkout = useWorkoutStore((s) => s.startWorkout);
-
     const { data: routines = [], isLoading } = useQuery<Routine[]>({
         queryKey: ['routines'],
         queryFn: () => fetchRoutines(),

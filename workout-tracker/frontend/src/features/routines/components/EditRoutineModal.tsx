@@ -85,15 +85,6 @@ export function EditRoutineModal({ routine, onClose }: EditRoutineModalProps) {
         });
     };
 
-    const moveDown = (index: number) => {
-        if (index >= exercises.length - 1) return;
-        setExercises((prev) => {
-            const arr = [...prev];
-            [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
-            return arr;
-        });
-    };
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />

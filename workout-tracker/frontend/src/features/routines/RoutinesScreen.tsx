@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { RoutinesHeader } from './components/RoutinesHeader';
 import { SegmentedTabs } from './components/SegmentedTabs';
 import { QuickStartBanner } from './components/QuickStartBanner';
@@ -43,6 +44,10 @@ export function RoutinesScreen() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['exercises'] });
             setShowCreateExercise(false);
+            toast.success('Exercício criado com sucesso!');
+        },
+        onError: (error: any) => {
+            toast.error(error.message || 'Erro ao criar exercício.');
         },
     });
 
@@ -55,6 +60,10 @@ export function RoutinesScreen() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['routines'] });
             setShowCreateRoutine(false);
+            toast.success('Rotina criada com sucesso!');
+        },
+        onError: (error: any) => {
+            toast.error(error.message || 'Erro ao criar rotina.');
         },
     });
 
@@ -67,7 +76,7 @@ export function RoutinesScreen() {
         });
     }, [exercises, search, activeFilter]);
 
-    const handleSelectExercise = async (exercise: Exercise) => {
+    const handleSelectExercise = async (exercise: { id: string; name: string }) => {
         try {
             const session = await startWorkoutSession();
             const routine = {

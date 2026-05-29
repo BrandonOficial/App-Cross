@@ -4,6 +4,7 @@ import { WeeklyProgress } from './components/WeeklyProgress';
 import { StatsOverview } from './components/StatsOverview';
 import { LastSession } from './components/LastSession';
 import { StreakRing } from './components/StreakRing';
+import { ProgressChart } from './components/ProgressChart';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -29,6 +30,7 @@ export function Dashboard() {
             <HeroBanner />
             <StreakRing current={summary?.currentStreak ?? 0} />
             <WeeklyProgress />
+            <ProgressChart />
             <StatsOverview />
             <LastSession />
 

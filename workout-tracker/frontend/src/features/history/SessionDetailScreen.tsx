@@ -2,9 +2,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSessionDetail } from '@/lib/api';
 import { ArrowLeft, Dumbbell, Clock, Weight, Flame, Trophy } from 'lucide-react';
-import type { LatestSession } from '@/lib/api';
+import type { LatestSession, WorkoutSet } from '@/lib/api';
 import { ExerciseProgressChart } from './components/ExerciseProgressChart';
-import { OneRepMaxChart } from './components/OneRepMaxChart';
 
 export function SessionDetailScreen() {
     const { sessionId } = useParams<{ sessionId: string }>();
@@ -47,17 +46,17 @@ export function SessionDetailScreen() {
     const durationLabel = session.durationMinutes ? `${session.durationMinutes} min` : 'Em andamento';
     
     // Agrupa sets por exercício, preservando o ID para o gráfico
-    const exerciseGroups = session.sets.reduce((acc, set) => {
+    const exerciseGroups = (session.sets ?? []).reduce((acc, set) => {
         const exId = set.exerciseId;
         const exName = set.exercise?.name || 'Desconhecido';
         if (!acc[exId]) acc[exId] = { name: exName, sets: [] };
         acc[exId].sets.push(set);
         return acc;
-    }, {} as Record<string, { name: string; sets: typeof session.sets }>);
+    }, {} as Record<string, { name: string; sets: WorkoutSet[] }>);
 
     // Encontra o maior peso por exercício nesta sessão para marcar PR badge
     const maxWeightPerExercise = new Map<string, number>();
-    for (const set of session.sets) {
+    for (const set of (session.sets ?? [])) {
         const w = Number(set.weight);
         const current = maxWeightPerExercise.get(set.exerciseId) ?? 0;
         if (w > current) maxWeightPerExercise.set(set.exerciseId, w);
@@ -72,7 +71,7 @@ export function SessionDetailScreen() {
                 </button>
                 <div>
                     <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-primary mb-1">
-                        {dateStr}
+                        {dateStr}, {timeStr}
                     </p>
                     <h1 className="text-2xl font-black tracking-tight">{session.routine?.name || 'Treino Livre'}</h1>
                 </div>

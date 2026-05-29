@@ -106,7 +106,7 @@ export function VolumeChart({ sessions }: VolumeChartProps) {
                                 fontSize: '12px',
                             }}
                             itemStyle={{ color: '#E60023', fontWeight: 'bold' }}
-                            formatter={(value: number) => [`${(value / 1000).toFixed(1)}k kg`, 'Volume']}
+                            formatter={(value: any) => [`${(Number(value) / 1000).toFixed(1)}k kg`, 'Volume']}
                         />
                         <Area
                             type="monotone"

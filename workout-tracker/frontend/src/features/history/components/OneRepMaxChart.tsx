@@ -1,8 +1,8 @@
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import type { ExerciseProgress } from '@/lib/api';
+import type { ExerciseProgressPoint } from '@/lib/api';
 
 interface OneRepMaxChartProps {
-    data: ExerciseProgress[];
+    data: ExerciseProgressPoint[];
     exerciseName: string;
 }
 
@@ -76,8 +76,8 @@ export function OneRepMaxChart({ data, exerciseName }: OneRepMaxChartProps) {
                             fontSize: '12px',
                             color: '#fff',
                         }}
-                        formatter={(value: number) => [`${value} kg`, '1RM Est.']}
-                        labelFormatter={(label: string) => label}
+                        formatter={(value: any) => [`${value} kg`, '1RM Est.']}
+                        labelFormatter={(label: any) => String(label)}
                     />
                     <Area
                         type="monotone"

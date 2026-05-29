@@ -37,7 +37,7 @@ export function AnalyticsChart() {
                             <Tooltip 
                                 contentStyle={{ backgroundColor: '#131313', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
                                 itemStyle={{ color: '#E60023', fontWeight: 'bold' }}
-                                formatter={(value: number) => [`${value} kg`, 'Max Weight']}
+                                formatter={(value: any) => [`${value} kg`, 'Max Weight']}
                                 labelFormatter={(label) => new Date(label).toLocaleDateString('pt-BR')}
                             />
                             <Line 

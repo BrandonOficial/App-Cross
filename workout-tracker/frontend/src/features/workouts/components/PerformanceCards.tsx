@@ -1,4 +1,3 @@
-import { Dumbbell, Target } from 'lucide-react';
 
 export function PerformanceCards() {
     return (

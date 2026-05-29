@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { logWorkoutSet } from '@/lib/api';
 import { useWorkoutStore } from '../store/useWorkoutStore';
+import type { LoggedSet } from '../store/useWorkoutStore';
 
 interface SetRowProps {
     exerciseId: string;
@@ -34,7 +35,15 @@ export function SetRow({ exerciseId, setNumber }: SetRowProps) {
             const savedSet = await logWorkoutSet(sessionId, data);
             
             // Registra na Store Client-side
-            addLoggedSet(savedSet);
+            const loggedSetEntry: LoggedSet = {
+                id: savedSet.id,
+                exerciseId: savedSet.exerciseId,
+                setType: savedSet.setType,
+                weight: Number(savedSet.weight),
+                reps: savedSet.reps,
+                ...(savedSet.rpe !== null ? { rpe: savedSet.rpe } : {}),
+            };
+            addLoggedSet(loggedSetEntry);
             setIsSaved(true);
         } catch (error) {
             alert("Erro ao salvar série");

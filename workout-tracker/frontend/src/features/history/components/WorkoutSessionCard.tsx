@@ -1,4 +1,4 @@
-import { Dumbbell, Zap } from 'lucide-react';
+import { Dumbbell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface WorkoutSessionCardProps {
