@@ -83,7 +83,7 @@ export function ActiveWorkoutScreen() {
             <WorkoutTimer />
             <ExerciseHeader />
             <SetsTable exerciseId={exerciseId} />
-            <PerformanceCards />
+            <PerformanceCards exerciseId={exerciseId} />
             <UpNext />
             <WorkoutBottomBar />
         </div>

@@ -7,6 +7,7 @@ import { useWorkoutStore } from '@/features/workouts/store/useWorkoutStore';
 import type { ActiveRoutine } from '@/features/workouts/store/useWorkoutStore';
 import { useState } from 'react';
 import { EditRoutineModal } from './EditRoutineModal';
+import { toast } from 'sonner';
 
 export function UserRoutinesSection() {
     const { data: routines = [], isLoading } = useQuery<Routine[]>({
@@ -61,6 +62,10 @@ function RoutineItem({ routine }: { routine: Routine }) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['routines'] });
             setShowConfirmDelete(false);
+            toast.success('Rotina excluída com sucesso!');
+        },
+        onError: (error: any) => {
+            toast.error(error.message || 'Erro ao excluir rotina.');
         },
     });
 
@@ -127,7 +132,7 @@ function RoutineItem({ routine }: { routine: Routine }) {
                 {/* Edit Button */}
                 <button
                     onClick={() => setShowEdit(true)}
-                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all"
+                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/10 transition-all"
                 >
                     <Pencil className="w-4 h-4 text-muted-foreground" />
                 </button>
@@ -135,7 +140,7 @@ function RoutineItem({ routine }: { routine: Routine }) {
                 {/* Delete Button */}
                 <button
                     onClick={() => setShowConfirmDelete(true)}
-                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 transition-all"
+                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 opacity-60 md:opacity-0 md:group-hover:opacity-100 hover:bg-red-500/10 transition-all"
                 >
                     <Trash2 className="w-4 h-4 text-red-400" />
                 </button>

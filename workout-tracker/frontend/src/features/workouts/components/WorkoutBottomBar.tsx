@@ -47,6 +47,37 @@ export function WorkoutBottomBar() {
         const interval = setInterval(() => {
             const diff = restTimerEnd - Date.now();
             if (diff <= 0) {
+                // ── Feedback Sonoro (Web Audio API) ──
+                try {
+                    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 880; // Frequência do bipe em Hz (Nota A5, clara e limpa)
+
+                    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); // Volume confortável
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5); // Fade out de 0.5 segundos
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                } catch (e) {
+                    console.warn('Falha ao reproduzir áudio do timer:', e);
+                }
+
+                // ── Feedback Tátil (Vibration API) ──
+                try {
+                    if ('vibrate' in navigator) {
+                        // Vibração dupla: 200ms ativa, 100ms pausa, 200ms ativa
+                        navigator.vibrate([200, 100, 200]);
+                    }
+                } catch (e) {
+                    console.warn('Falha ao vibrar dispositivo:', e);
+                }
+
                 clearRestTimer();
                 setRestRemaining(null);
             } else {

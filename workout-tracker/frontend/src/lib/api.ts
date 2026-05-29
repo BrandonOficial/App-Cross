@@ -90,7 +90,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...options,
         headers: {
-            'Content-Type': 'application/json',
+            ...(options?.body ? { 'Content-Type': 'application/json' } : {}),
             ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options?.headers,
         },
@@ -141,7 +141,12 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
         throw new Error(`API Error ${response.status}: ${errorBody}`);
     }
 
-    return response.json();
+    if (response.status === 204) {
+        return {} as T;
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : ({} as T);
 }
 
 // ─── Auth ───
