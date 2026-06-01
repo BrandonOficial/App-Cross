@@ -92,6 +92,7 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     const response = await fetch(url, {
         ...options,
         headers: {
+            'ngrok-skip-browser-warning': 'true',
             ...(options?.body ? { 'Content-Type': 'application/json' } : {}),
             ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options?.headers,
