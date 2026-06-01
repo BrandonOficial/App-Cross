@@ -1,7 +1,9 @@
 // src/lib/api.ts
 import { useAuthStore } from '../features/auth/store/useAuthStore';
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL
+    ? (import.meta.env.VITE_API_URL.endsWith('/api') ? import.meta.env.VITE_API_URL : `${import.meta.env.VITE_API_URL}/api`)
+    : 'http://localhost:3000/api';
 
 // ─── Tipos compartilhados ───
 
