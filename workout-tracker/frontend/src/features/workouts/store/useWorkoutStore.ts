@@ -73,6 +73,15 @@ interface WorkoutState {
     saveCurrentSet: (exerciseId: string) => void;
     addSetRow: (exerciseId: string) => void;
 
+    // Edição de séries já salvas / futuras
+    // editingRowMap  → qual setIndex está em edição para cada exercício (null = nenhum)
+    // editingSnapshot → cópia do SetEntry ANTES da edição, para poder cancelar sem perder dados
+    editingRowMap: Record<string, number | null>;
+    editingSnapshot: Record<string, SetEntry | null>;
+    startEditingSet: (exerciseId: string, setIndex: number) => void;
+    cancelEditingSet: (exerciseId: string) => void;
+    confirmEditSet: (exerciseId: string, setIndex: number) => void;
+
     // Rest Timer
     startRestTimer: (seconds: number) => void;
     clearRestTimer: () => void;
@@ -90,6 +99,8 @@ export const useWorkoutStore = create<WorkoutState>()(
             exerciseSets: {},
             activeRowMap: {},
             restTimerEnd: null,
+            editingRowMap: {},
+            editingSnapshot: {},
 
             startWorkout: (sessionId, routine) => set({
                 isActive: true,
@@ -101,6 +112,8 @@ export const useWorkoutStore = create<WorkoutState>()(
                 exerciseSets: {},
                 activeRowMap: {},
                 restTimerEnd: null,
+                editingRowMap: {},
+                editingSnapshot: {},
             }),
 
             addLoggedSet: (loggedSet) => set((state) => ({
@@ -155,6 +168,8 @@ export const useWorkoutStore = create<WorkoutState>()(
                 exerciseSets: {},
                 activeRowMap: {},
                 restTimerEnd: null,
+                editingRowMap: {},
+                editingSnapshot: {},
             }),
 
             // Inicializa as linhas de set para um exercício
@@ -229,6 +244,82 @@ export const useWorkoutStore = create<WorkoutState>()(
                     isSaved: false,
                 });
                 set({ exerciseSets: { ...state.exerciseSets, [exerciseId]: sets } });
+            },
+
+            // ── Edição de série salva ou futura ──
+            // Por que guardamos um snapshot antes de editar?
+            // Para que o Cancel possa restaurar os dados originais sem queries ao backend.
+            startEditingSet: (exerciseId, setIndex) => {
+                const state = get();
+                const sets = state.exerciseSets[exerciseId] ?? [];
+                const original = sets[setIndex] ? { ...sets[setIndex] } : null;
+                set({
+                    editingRowMap: { ...state.editingRowMap, [exerciseId]: setIndex },
+                    editingSnapshot: { ...state.editingSnapshot, [exerciseId]: original },
+                });
+            },
+
+            cancelEditingSet: (exerciseId) => {
+                const state = get();
+                const snapshot = state.editingSnapshot[exerciseId];
+                const editingIndex = state.editingRowMap[exerciseId];
+
+                if (snapshot !== null && snapshot !== undefined && editingIndex !== null && editingIndex !== undefined) {
+                    const sets = [...(state.exerciseSets[exerciseId] ?? [])];
+                    sets[editingIndex] = snapshot;
+                    set({
+                        exerciseSets: { ...state.exerciseSets, [exerciseId]: sets },
+                        editingRowMap: { ...state.editingRowMap, [exerciseId]: null },
+                        editingSnapshot: { ...state.editingSnapshot, [exerciseId]: null },
+                    });
+                } else {
+                    set({
+                        editingRowMap: { ...state.editingRowMap, [exerciseId]: null },
+                        editingSnapshot: { ...state.editingSnapshot, [exerciseId]: null },
+                    });
+                }
+            },
+
+            confirmEditSet: (exerciseId, setIndex) => {
+                const state = get();
+                const sets = [...(state.exerciseSets[exerciseId] ?? [])];
+                if (!sets[setIndex]) return;
+
+                const updatedSet = { ...sets[setIndex], isSaved: true };
+                sets[setIndex] = updatedSet;
+
+                // Sincroniza loggedSets: atualiza a entrada correspondente pelo índice relativo
+                // entre séries salvas do mesmo exercício, para que o volume do resumo fique correto.
+                const savedIndexAmongSaved = sets
+                    .slice(0, setIndex + 1)
+                    .filter((s) => s.isSaved).length - 1;
+
+                const loggedForExercise = state.loggedSets
+                    .map((ls, i) => ({ ls, i }))
+                    .filter(({ ls }) => ls.exerciseId === exerciseId);
+
+                const targetLog = loggedForExercise[savedIndexAmongSaved];
+
+                let newLoggedSets = state.loggedSets;
+                if (targetLog) {
+                    newLoggedSets = state.loggedSets.map((ls, i) =>
+                        i === targetLog.i
+                            ? {
+                                  ...ls,
+                                  weight: parseFloat(updatedSet.weight) || ls.weight,
+                                  reps: parseInt(updatedSet.reps, 10) || ls.reps,
+                                  setType: updatedSet.setType,
+                              }
+                            : ls
+                    );
+                }
+
+                set({
+                    exerciseSets: { ...state.exerciseSets, [exerciseId]: sets },
+                    loggedSets: newLoggedSets,
+                    editingRowMap: { ...state.editingRowMap, [exerciseId]: null },
+                    editingSnapshot: { ...state.editingSnapshot, [exerciseId]: null },
+                });
             },
 
             // Rest Timer

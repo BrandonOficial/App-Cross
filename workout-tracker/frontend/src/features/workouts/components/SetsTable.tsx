@@ -10,6 +10,7 @@ interface SetsTableProps {
 export function SetsTable({ exerciseId }: SetsTableProps) {
     const sets = useWorkoutStore((s) => s.exerciseSets[exerciseId] ?? []);
     const activeRow = useWorkoutStore((s) => s.activeRowMap[exerciseId] ?? 0);
+    const editingRow = useWorkoutStore((s) => s.editingRowMap[exerciseId] ?? null);
     const initSetsForExercise = useWorkoutStore((s) => s.initSetsForExercise);
     const addSetRow = useWorkoutStore((s) => s.addSetRow);
 
@@ -36,7 +37,8 @@ export function SetsTable({ exerciseId }: SetsTableProps) {
                     key={i}
                     exerciseId={exerciseId}
                     setIndex={i}
-                    isActive={i === activeRow}
+                    isActive={i === activeRow && editingRow === null}
+                    isEditing={i === editingRow}
                 />
             ))}
 

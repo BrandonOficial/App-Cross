@@ -242,7 +242,7 @@ export function WorkoutBottomBar() {
                     onClose={() => {
                         setShowSummary(false);
                         setSummaryData(null);
-                        navigate('/app/dashboard');
+                        navigate('/app/history');
                     }}
                 />
             )}

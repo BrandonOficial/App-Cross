@@ -84,10 +84,10 @@ export function WorkoutSummaryModal({
                         Ver Detalhes
                     </button>
                     <button
-                        onClick={() => { onClose(); navigate('/app/dashboard'); }}
+                        onClick={() => { onClose(); navigate('/app/history'); }}
                         className="w-full py-3 rounded-xl border border-white/10 text-sm font-bold uppercase tracking-wider text-muted-foreground hover:bg-white/5 transition-colors"
                     >
-                        Voltar ao Dashboard
+                        Ver Histórico
                     </button>
                 </div>
             </div>
