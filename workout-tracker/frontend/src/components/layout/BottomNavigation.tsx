@@ -11,7 +11,10 @@ export function BottomNavigation() {
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 z-50 w-full bg-[#080808] border-t border-white/5">
+        <div
+            className="sticky bottom-0 left-0 z-50 w-full bg-[#080808] border-t border-white/5"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
             <div className="grid h-[68px] max-w-[430px] grid-cols-4 mx-auto">
                 {navItems.map((item) => (
                     <NavLink

@@ -6,7 +6,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { finishWorkoutSession, logWorkoutSet } from '@/lib/api';
 import { WorkoutSummaryModal } from './WorkoutSummaryModal';
 
-export function WorkoutBottomBar() {
+interface WorkoutBottomBarProps {
+    hidden?: boolean;
+}
+
+export function WorkoutBottomBar({ hidden = false }: WorkoutBottomBarProps) {
+    if (hidden) return null;
     const [showSummary, setShowSummary] = useState(false);
     const [summaryData, setSummaryData] = useState<{
         sessionId: string;

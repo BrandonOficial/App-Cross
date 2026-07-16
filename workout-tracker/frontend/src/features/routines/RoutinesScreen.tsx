@@ -22,11 +22,11 @@ export function RoutinesScreen() {
     const [activeTab, setActiveTab] = useState('Rotinas');
     const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState('Todos');
-    
+
     // Modal states
     const [showCreateExercise, setShowCreateExercise] = useState(false);
     const [showCreateRoutine, setShowCreateRoutine] = useState(false);
-    
+
     const navigate = useNavigate();
     const startWorkout = useWorkoutStore((s) => s.startWorkout);
     const queryClient = useQueryClient();
@@ -120,7 +120,7 @@ export function RoutinesScreen() {
                             Minhas Rotinas
                         </p>
                     </div>
-                    <div className="pb-24">
+                    <div>
                         <UserRoutinesSection />
                     </div>
                 </>
@@ -136,7 +136,7 @@ export function RoutinesScreen() {
                         exercises={exercises}
                     />
 
-                    <div className="flex flex-col gap-3 pb-24">
+                    <div className="flex flex-col gap-3 pb-20">
                         {isLoadingExercises ? (
                             <div className="flex flex-col items-center justify-center py-16 gap-3">
                                 <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -165,7 +165,7 @@ export function RoutinesScreen() {
             {/* FAB — Dinâmico baseado na aba */}
             <button
                 onClick={handleFabClick}
-                className="fixed bottom-20 right-5 z-40 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_0_25px_rgba(230,0,35,0.5)] hover:shadow-[0_0_35px_rgba(230,0,35,0.7)] hover:scale-105 transition-all active:scale-95"
+                className="fixed bottom-[88px] right-5 z-40 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center shadow-[0_0_25px_rgba(230,0,35,0.5)] hover:shadow-[0_0_35px_rgba(230,0,35,0.7)] hover:scale-105 transition-all active:scale-95"
             >
                 <Plus className="w-7 h-7" strokeWidth={3} />
             </button>

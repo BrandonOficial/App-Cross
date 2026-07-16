@@ -42,7 +42,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <ErrorBoundary>
-        <div className="bg-background min-h-screen text-foreground antialiased font-sans max-w-md mx-auto relative shadow-2xl overflow-hidden">
+        <div className="bg-background text-foreground antialiased font-sans max-w-md mx-auto relative shadow-2xl flex flex-col" style={{ minHeight: '100dvh' }}>
           <Toaster richColors theme="dark" position="top-center" closeButton />
           <Routes>
             {/* Public Routes */}

@@ -42,12 +42,12 @@ export function ActiveWorkoutScreen() {
     // O usuário pode decidir no vestiário iniciar um treino em branco e ir adicionando os exercícios sob demanda.
     if (exercises.length === 0) {
         return (
-            <div className="flex flex-col pb-32 animate-in relative">
+            <div className="flex flex-col pb-[120px] animate-in relative" style={{ minHeight: '100dvh' }}>
                 {/* Fluid Glows */}
                 <div className="fluid-glow fluid-glow--primary-tl" />
                 <div className="fluid-glow fluid-glow--primary-br" />
 
-                <WorkoutTopBar />
+                <WorkoutTopBar onAddExercise={() => setShowAddModal(true)} />
                 <WorkoutTimer />
 
                 <div className="flex flex-col items-center justify-center py-16 gap-5">
@@ -75,17 +75,18 @@ export function ActiveWorkoutScreen() {
     }
 
     return (
-        <div className="flex flex-col pb-32 animate-in relative">
+        <div className="flex flex-col pb-[120px] animate-in relative" style={{ minHeight: '100dvh' }}>
             {/* Fluid Glows */}
             <div className="fluid-glow fluid-glow--primary-tl" />
             <div className="fluid-glow fluid-glow--primary-br" />
-            <WorkoutTopBar />
+            <WorkoutTopBar onAddExercise={() => setShowAddModal(true)} />
             <WorkoutTimer />
             <ExerciseHeader />
             <SetsTable exerciseId={exerciseId} />
             <PerformanceCards exerciseId={exerciseId} />
             <UpNext />
-            <WorkoutBottomBar />
+            <WorkoutBottomBar hidden={showAddModal} />
+            {showAddModal && <AddExerciseModal onClose={() => setShowAddModal(false)} />}
         </div>
     );
 }

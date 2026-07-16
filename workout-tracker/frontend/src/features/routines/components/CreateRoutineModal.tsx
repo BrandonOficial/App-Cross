@@ -42,7 +42,8 @@ export function CreateRoutineModal({ onClose, onSubmit, isLoading, exercises }: 
 
             {/* Bottom Sheet */}
             <div
-                className="relative z-10 w-full max-w-[430px] bg-[#1a1a1a] rounded-t-3xl border-t border-white/10 p-5 pb-6 animate-in h-[80vh] flex flex-col"
+                className="relative z-10 w-full max-w-[430px] bg-[#1a1a1a] rounded-t-3xl border-t border-white/10 p-5 pb-6 animate-in flex flex-col"
+                style={{ maxHeight: '85dvh', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Handle */}

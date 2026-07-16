@@ -173,7 +173,7 @@ export const useWorkoutStore = create<WorkoutState>()(
             }),
 
             // Inicializa as linhas de set para um exercício
-            initSetsForExercise: (exerciseId, count = 3) => {
+            initSetsForExercise: (exerciseId, count = 1) => {
                 const state = get();
                 if (state.exerciseSets[exerciseId]) return; // Já inicializado
 
