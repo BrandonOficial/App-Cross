@@ -5,12 +5,27 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProfile, updateProfile, logout as apiLogout, fetchDashboardSummary } from '@/lib/api';
 import type { DashboardSummary, UserProfile } from '@/lib/api';
 import { useAuthStore } from '@/features/auth/store/useAuthStore';
+import { useSettingsStore } from '@/features/workouts/store/useSettingsStore';
+import { Timer } from 'lucide-react';
 
 export function ProfileScreen() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const authUser = useAuthStore((s) => s.user);
     const clearAuth = useAuthStore((s) => s.clearAuth);
+
+    // Preferências de treino
+    const restTimerDuration = useSettingsStore((s) => s.restTimerDuration);
+    const setRestTimerDuration = useSettingsStore((s) => s.setRestTimerDuration);
+
+    const REST_TIMER_PRESETS = [
+        { label: '30s', value: 30 },
+        { label: '45s', value: 45 },
+        { label: '1min', value: 60 },
+        { label: '1:30', value: 90 },
+        { label: '2min', value: 120 },
+        { label: '3min', value: 180 },
+    ];
 
     // Dados do perfil via API
     const { data: profile } = useQuery<UserProfile>({
@@ -213,6 +228,37 @@ export function ProfileScreen() {
                     </div>
                 </div>
             )}
+
+            {/* Preferências de Treino */}
+            <div className="flex flex-col gap-1">
+                <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-2 px-1">Preferências de Treino</p>
+                <div className="glass-card p-5">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                            <Timer className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold">Timer de Descanso</p>
+                            <p className="text-xs text-muted-foreground">Tempo automático após salvar uma série</p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        {REST_TIMER_PRESETS.map((preset) => (
+                            <button
+                                key={preset.value}
+                                onClick={() => setRestTimerDuration(preset.value)}
+                                className={`py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                                    restTimerDuration === preset.value
+                                        ? 'bg-primary text-white shadow-[0_0_12px_rgba(230,0,35,0.3)]'
+                                        : 'bg-white/[0.06] text-white/50 border border-white/[0.06] hover:bg-white/[0.1]'
+                                }`}
+                            >
+                                {preset.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
 
             {/* Logout */}
             <button

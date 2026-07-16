@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { finishWorkoutSession, logWorkoutSet } from '@/lib/api';
 import { WorkoutSummaryModal } from './WorkoutSummaryModal';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 interface WorkoutBottomBarProps {
     hidden?: boolean;
@@ -12,6 +13,7 @@ interface WorkoutBottomBarProps {
 
 export function WorkoutBottomBar({ hidden = false }: WorkoutBottomBarProps) {
     if (hidden) return null;
+    const restTimerDuration = useSettingsStore((s) => s.restTimerDuration);
     const [showSummary, setShowSummary] = useState(false);
     const [summaryData, setSummaryData] = useState<{
         sessionId: string;
@@ -52,35 +54,49 @@ export function WorkoutBottomBar({ hidden = false }: WorkoutBottomBarProps) {
         const interval = setInterval(() => {
             const diff = restTimerEnd - Date.now();
             if (diff <= 0) {
-                // ── Feedback Sonoro (Web Audio API) ──
+                // ── Feedback Sonoro — 3 bipes ascendentes (Web Audio API) ──
                 try {
                     const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-                    const oscillator = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
 
-                    oscillator.type = 'sine';
-                    oscillator.frequency.value = 880; // Frequência do bipe em Hz (Nota A5, clara e limpa)
+                    // Sequência de 3 notas: Dó (C5) → Mi (E5) → Sol (G5)
+                    // Forma um acorde de Dó maior — soa como "conquista/vitória"
+                    const notes = [
+                        { freq: 523.25, start: 0 },      // C5
+                        { freq: 659.25, start: 0.22 },   // E5
+                        { freq: 783.99, start: 0.44 },   // G5
+                    ];
 
-                    gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); // Volume confortável
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5); // Fade out de 0.5 segundos
+                    notes.forEach(({ freq, start }) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
 
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
 
-                    oscillator.start();
-                    oscillator.stop(audioCtx.currentTime + 0.5);
+                        // Ataque rápido → sustain → fade suave
+                        gain.gain.setValueAtTime(0, audioCtx.currentTime + start);
+                        gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + start + 0.02);
+                        gain.gain.setValueAtTime(0.4, audioCtx.currentTime + start + 0.12);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + 0.35);
+
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start(audioCtx.currentTime + start);
+                        osc.stop(audioCtx.currentTime + start + 0.35);
+                    });
                 } catch (e) {
                     console.warn('Falha ao reproduzir áudio do timer:', e);
                 }
 
-                // ── Feedback Tátil (Vibration API) ──
+                // ── Feedback Tátil — 3 pulsos (Vibration API) ──
                 try {
                     if ('vibrate' in navigator) {
-                        // Vibração dupla: 200ms ativa, 100ms pausa, 200ms ativa
-                        navigator.vibrate([200, 100, 200]);
+                        navigator.vibrate([150, 80, 150, 80, 300]);
                     }
                 } catch (e) {
                     console.warn('Falha ao vibrar dispositivo:', e);
+
                 }
 
                 clearRestTimer();
@@ -138,7 +154,7 @@ export function WorkoutBottomBar({ hidden = false }: WorkoutBottomBarProps) {
         if (restTimerEnd) {
             clearRestTimer();
         } else {
-            startRestTimer(45);
+            startRestTimer(restTimerDuration);
         }
     };
 
@@ -217,7 +233,7 @@ export function WorkoutBottomBar({ hidden = false }: WorkoutBottomBarProps) {
                         >
                             <Timer className="w-4 h-4" />
                             <span className="text-[10px] font-bold tracking-wider uppercase">
-                                {restRemaining ? formatRestTime(restRemaining) : 'Pausa (0:45)'}
+                                {restRemaining ? formatRestTime(restRemaining) : `Pausa (${formatRestTime(restTimerDuration)})`}
                             </span>
                         </button>
 
