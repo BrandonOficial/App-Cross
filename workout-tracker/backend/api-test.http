@@ -1,0 +1,68 @@
+### Variáveis Globais do Teste
+@baseUrl = http://localhost:3000
+@userId = 5edfd386-83d4-4f41-88af-ccd6a3475f99
+@exerciseId = 67aab80a-d0fa-42a4-b46a-1e69997570cb
+
+### 1. Iniciar uma Sessão de Treino
+# @name createSession
+POST {{baseUrl}}/workouts/sessions
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}"
+}
+
+### 2. Logar o Top Set 
+# (Primeiro dispare a requisição acima, copie o ID gerado e cole na variável abaixo)
+@sessionId = COLOQUE_O_ID_DA_SESSAO_AQUI
+
+POST {{baseUrl}}/workouts/sessions/{{sessionId}}/sets
+Content-Type: application/json
+
+{
+  "exerciseId": "{{exerciseId}}",
+  "setType": "TOP_SET",
+  "weight": 120.5,
+  "reps": 5,
+  "rpe": 9
+}
+
+### 3. Logar o Back-off Set
+POST {{baseUrl}}/workouts/sessions/{{sessionId}}/sets
+Content-Type: application/json
+
+{
+  "exerciseId": "{{exerciseId}}",
+  "setType": "BACK_OFF",
+  "weight": 105,
+  "reps": 8,
+  "rpe": 8
+}
+
+### 4. Criar uma Rotina (Push Day)
+# @name createRoutine
+POST {{baseUrl}}/api/routines
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "name": "Push Day PPL",
+  "exercises": [
+    {
+      "exerciseId": "{{exerciseId}}",
+      "order": 1
+    }
+  ]
+}
+
+### 5. Listar Rotinas do Usuário
+GET {{baseUrl}}/api/routines?userId={{userId}}
+
+### 6. Listar Histórico Completo de Sessões do Usuário
+# @name getSessionsHistory
+GET {{baseUrl}}/api/history/sessions?userId={{userId}}
+
+### 7. Ver a Progressão de Carga (Top Set Max) de um Exercício
+# @name getExerciseProgress
+GET {{baseUrl}}/api/history/exercises/{{exerciseId}}/progress?userId={{userId}}
+

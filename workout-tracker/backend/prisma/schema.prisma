@@ -1,0 +1,100 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- ENUMS (Regras de Negócio Blindadas no Banco) ---
+
+// Define o tipo de série executada. O coração do nosso controle de intensidade.
+enum SetType {
+  WARMUP    // Aquecimento geral 
+  FEEDER    // Série de ajuste 
+  TOP_SET   // Série máxima do dia 
+  BACK_OFF  // Série com redução de carga para acumular volume útil
+  STANDARD  // Série comum 
+}
+
+// --- TABELAS ---
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  height       Int?     // Altura em cm
+  weight       Decimal? @db.Decimal(5, 2) // Peso em kg
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  routines  Routine[]
+  sessions  WorkoutSession[]
+}
+
+model Exercise {
+  id          String   @id @default(uuid())
+  name        String   @unique // Ex: "Supino Reto com Barra"
+  muscleGroup String   // Ex: "Peito", "Costas", "Pernas"
+  createdAt   DateTime @default(now())
+
+  routineExercises RoutineExercise[]
+  workoutSets      WorkoutSet[]
+}
+
+// A Rotina. O "Esqueleto" do que você vai fazer na academia (Ex: "Push 1", "Pull Foco Dorsal")
+model Routine {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises RoutineExercise[]
+  sessions  WorkoutSession[]
+}
+
+// Tabela pivô para manter a ordem dos exercícios dentro de uma rotina
+model RoutineExercise {
+  id         String   @id @default(uuid())
+  routineId  String
+  exerciseId String
+  order      Int      // 1º Supino, 2º Desenvolvimento, etc.
+
+  routine    Routine  @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  @@unique([routineId, exerciseId]) // Impede o mesmo exercício duplicado na mesma rotina
+}
+
+// A Sessão de Treino. O "Registro" do dia em que você realmente foi pra academia.
+model WorkoutSession {
+  id        String    @id @default(uuid())
+  userId    String
+  routineId String?   // Pode ser null se o cara fizer um treino "Free Style" no dia
+  startTime DateTime  @default(now())
+  endTime   DateTime? // Quando finalizado, calculamos a duração total
+  
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routine   Routine?  @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  sets      WorkoutSet[]
+}
+
+// O Core do App. Cada linha de repetição que você anota.
+model WorkoutSet {
+  id               String         @id @default(uuid())
+  sessionId        String
+  exerciseId       String
+  setType          SetType        @default(STANDARD)
+  weight           Decimal        @db.Decimal(5, 2) // Suporta quebras tipo 12.5 kg
+  reps             Int
+  rpe              Int?           // Rate of Perceived Exertion (Opcional, mas excelente pra controle)
+  completedAt      DateTime       @default(now())
+
+  session          WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise         Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+}
