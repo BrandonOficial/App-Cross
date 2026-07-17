@@ -10,7 +10,6 @@ interface SetsTableProps {
 export function SetsTable({ exerciseId }: SetsTableProps) {
     const sets = useWorkoutStore((s) => s.exerciseSets[exerciseId] ?? []);
     const activeRow = useWorkoutStore((s) => s.activeRowMap[exerciseId] ?? 0);
-    const editingRow = useWorkoutStore((s) => s.editingRowMap[exerciseId] ?? null);
     const initSetsForExercise = useWorkoutStore((s) => s.initSetsForExercise);
     const addSetRow = useWorkoutStore((s) => s.addSetRow);
 
@@ -22,7 +21,7 @@ export function SetsTable({ exerciseId }: SetsTableProps) {
     return (
         <div className="mb-6">
             {/* Table Header */}
-            <div className="grid grid-cols-12 gap-3 items-center py-2 border-b border-white/10 mb-1">
+            <div className="grid grid-cols-12 gap-2 items-center py-2 border-b border-white/10 mb-1">
                 <div className="col-span-1 text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Série</div>
                 <div className="col-span-3 text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Tipo</div>
                 <div className="col-span-4 text-center text-[10px] font-bold tracking-wider uppercase text-muted-foreground">KG</div>
@@ -35,8 +34,7 @@ export function SetsTable({ exerciseId }: SetsTableProps) {
                     key={i}
                     exerciseId={exerciseId}
                     setIndex={i}
-                    isActive={i === activeRow && editingRow === null}
-                    isEditing={i === editingRow}
+                    isActive={i === activeRow}
                 />
             ))}
 
